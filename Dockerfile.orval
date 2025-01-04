@@ -1,0 +1,27 @@
+FROM node:18-slim AS build
+
+RUN npm install -g orval@7.3.0
+
+COPY <<EOT /orval.config.json
+{
+  "petstore": {
+    "mode": "single",
+    "output": {
+      "target": "/output/index.ts",
+      "client": "fetch",
+      "baseUrl": "https://webhook.site/717e76bc-4b91-4c8f-8037-73507118e2d5"
+    },
+    "mock": false,
+    "input": "/src/openapi.yaml"
+  }
+}
+EOT
+
+COPY openapi.yaml /src/openapi.yaml
+
+RUN orval --config /orval.config.json
+
+FROM scratch
+
+COPY --from=build /output /output
+ENTRYPOINT [ "/output" ]

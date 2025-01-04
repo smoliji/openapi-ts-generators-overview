@@ -1,0 +1,12 @@
+FROM node:20-slim AS build
+
+RUN npm install -g swagger-typescript-api@13.0.23
+
+COPY openapi.yaml /src/openapi.yaml
+
+RUN swagger-typescript-api -p /src/openapi.yaml -o /output/index.ts
+
+FROM scratch
+
+COPY --from=build /output /output
+ENTRYPOINT [ "/output" ]

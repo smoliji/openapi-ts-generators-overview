@@ -1,0 +1,10 @@
+FROM openapitools/openapi-generator-cli:v7.10.0 AS build
+
+COPY openapi.yaml /src/openapi.yaml
+RUN /usr/local/bin/docker-entrypoint.sh generate -i /src/openapi.yaml -g nodejs-express-server -o /output
+
+
+FROM scratch
+
+COPY --from=build /output /output
+ENTRYPOINT [ "/output" ]
